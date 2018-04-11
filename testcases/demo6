@@ -1,0 +1,15 @@
+program main;
+var a, b, c, d, e: integer; 
+    f, g: boolean;
+begin
+  a := 1;
+  b := 2;
+  c := 3;
+  d := 4;
+  e := a + b * c +  b * c + c * b + a;   
+  print(e);
+  f := true;
+  g := false or f and true;
+  print(g);
+  print(false)
+end.

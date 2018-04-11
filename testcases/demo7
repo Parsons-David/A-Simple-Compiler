@@ -1,0 +1,17 @@
+program main;
+var a, b: integer;
+    i: integer;
+begin
+  i := 0;
+  a := 1;
+  b := 10;
+  while i < 100 do
+  begin
+    a := a + 2;
+    b := b + 1;
+    i := i + 1
+  end;	
+  print(i);
+  print(a);
+  print(b)
+end.
