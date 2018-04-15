@@ -22,6 +22,8 @@ qstring	\'[^\'\n]*[\'\n]
 "!="		{ECHO;return(NEQ);}
 "<="		{ECHO;return(LEQ);}
 "<"		{ECHO;return(LT);}
+">="		{ECHO;return(GEQ);}
+">"		{ECHO;return(GT);}
 \.		{ECHO;return(PERIOD);}
 "/*"		{
 		int c1 = 0; int c2 = input();

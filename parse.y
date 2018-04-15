@@ -19,7 +19,7 @@ char *CommentBuffer;
 %token INT BOOL PRINT THEN IF DO  
 %token ARRAY OF 
 %token BEG END ASG  
-%token EQ NEQ LT LEQ AND OR TRUE FALSE
+%token EQ NEQ LT LEQ GT GEQ AND OR TRUE FALSE
 %token ELSE
 %token WHILE 
 %token <token> ID ICONST 
