@@ -435,8 +435,54 @@ exp	: exp '+' exp		{
   | ID '[' exp ']'	{
     // Look Up ID
     // TODO : IMPLEMENT
-    /* printf("\n*** ERROR ***: Variable %s not declared.\n", ...); */
-    /* printf("\n*** ERROR ***: Array variable %s index type must be integer.\n", ...); */
+    // Lookup offset for given id
+    // Send up reg where value of id at offset is stored
+    // Send up type for give id
+    char * id_name = $1.str;
+    SymTabEntry * id_entry = lookup(id_name);
+    if(id_entry == NULL){
+      // TODO : !!!!!!!!!!!!!!!!!!!!!
+      // REPORT ERROR!
+      /* printf("\n*** ERROR ***: Variable %s not declared.\n", ...); */
+      /* printf("\n*** ERROR ***: Array variable %s index type must be integer.\n", ...); */
+    }
+    // TODO : IMPLEMENT
+    /* printf("\n*** ERROR ***: Variable %s is not an array variable.\n", ...); */
+    // Evaluate Expersion
+    // TODO: ???????????????????
+    // Make sure expression is a valid offset
+    // make sure expression is int
+    if($3.type == TYPE_BOOL){
+      // TODO : !!!!!!!!!!!!!!!!!!!!!
+      // REPORT ERROR!
+      /* printf("\n*** ERROR ***: Array variable %s index type must be integer.\n", ...); */
+    }
+
+    int final_value_reg = NextRegister();
+    sprintf(CommentBuffer, "Load %s[exp] Value | %d + 1024 + (4 * exp) | Into v%d", $1.str, id_entry->offset, final_value_reg);
+    emitComment(CommentBuffer);
+
+    // Store 4 * exp offset in offset_reg
+    // register for i4
+    int four_reg = NextRegister();
+    // loadI 4 => vReg
+    emit(NOLABEL, LOADI, 4, four_reg, EMPTY);
+    // exp.reg
+    int exp_value_reg = $3.targetRegister;
+    int offset_reg = NextRegister();
+    emit(NOLABEL, MULT, four_reg, exp_value_reg, offset_reg);
+    // Store offset_reg + id_offset_value in total_offset_reg
+    // Load ID offset lookup into a vReg
+    int id_offset_value_reg = NextRegister();
+    emit(NOLABEL, LOADI, id_entry->offset, id_offset_value_reg, EMPTY);
+    // Perform offset + id_offset addition
+    int total_offset_reg = NextRegister();
+    emit(NOLABEL, ADD, offset_reg, id_offset_value_reg, total_offset_reg);
+    int final_addr_reg = NextRegister();
+    emit(NOLABEL, ADD, 0, total_offset_reg, final_addr_reg);
+    emit(NOLABEL, LOAD, final_addr_reg, final_value_reg, EMPTY);
+    $$.targetRegister = final_value_reg;
+    $$.type = id_entry->type;
   }
 
   | ICONST  {
