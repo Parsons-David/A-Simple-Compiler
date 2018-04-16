@@ -1,5 +1,5 @@
 program main;
-var n, r, i: integer;
+var n, r: integer;
 begin
   n := 5;
   r := 1;
