@@ -220,6 +220,11 @@ wstmt	: WHILE  {
     emitComment(CommentBuffer);
     emit($1.true_label, NOP, EMPTY, EMPTY, EMPTY);
   } DO stmt  {
+    sprintf(CommentBuffer, "Loop Break");
+    emitComment(CommentBuffer);
+    // Add Loop Jump
+    emit(NOLABEL, BR, $1.stmt_label, EMPTY, EMPTY);
+
     sprintf(CommentBuffer, "***End of While Statement***");
     emitComment(CommentBuffer);
     // End of While stmt
@@ -442,21 +447,59 @@ condexp	: exp NEQ exp		{
     sprintf(CommentBuffer, "Store v%d == v%d | Into v%d", $1.targetRegister, $3.targetRegister, resultReg);
     emitComment(CommentBuffer);
     emit(NOLABEL, CMPEQ, $1.targetRegister, $3.targetRegister, resultReg);
-    $$.targetRegister = 1;
+    $$.targetRegister = resultReg;
   }
 
   | exp LT exp		{
+    if (! ((($1.type == TYPE_INT) && ($3.type == TYPE_INT)) ||
+        (($1.type == TYPE_BOOL) && ($3.type == TYPE_BOOL)))) {
+        printf("*** ERROR ***: Assignment types do not match.\n");
+    }
+    // Register to store comparison result in
+    int resultReg = NextRegister();
+    sprintf(CommentBuffer, "Store v%d < v%d | Into v%d", $1.targetRegister, $3.targetRegister, resultReg);
+    emitComment(CommentBuffer);
+    emit(NOLABEL, CMPLT, $1.targetRegister, $3.targetRegister, resultReg);
+    $$.targetRegister = resultReg;
   }
 
   | exp LEQ exp		{
-
+    if (! ((($1.type == TYPE_INT) && ($3.type == TYPE_INT)) ||
+        (($1.type == TYPE_BOOL) && ($3.type == TYPE_BOOL)))) {
+        printf("*** ERROR ***: Assignment types do not match.\n");
+    }
+    // Register to store comparison result in
+    int resultReg = NextRegister();
+    sprintf(CommentBuffer, "Store v%d <= v%d | Into v%d", $1.targetRegister, $3.targetRegister, resultReg);
+    emitComment(CommentBuffer);
+    emit(NOLABEL, CMPLE, $1.targetRegister, $3.targetRegister, resultReg);
+    $$.targetRegister = resultReg;
   }
 
   | exp GT exp		{
-
+      if (! ((($1.type == TYPE_INT) && ($3.type == TYPE_INT)) ||
+          (($1.type == TYPE_BOOL) && ($3.type == TYPE_BOOL)))) {
+          printf("*** ERROR ***: Assignment types do not match.\n");
+      }
+      // Register to store comparison result in
+      int resultReg = NextRegister();
+      sprintf(CommentBuffer, "Store v%d > v%d | Into v%d", $1.targetRegister, $3.targetRegister, resultReg);
+      emitComment(CommentBuffer);
+      emit(NOLABEL, CMPGT, $1.targetRegister, $3.targetRegister, resultReg);
+      $$.targetRegister = resultReg;
   }
 
   | exp GEQ exp		{
+      if (! ((($1.type == TYPE_INT) && ($3.type == TYPE_INT)) ||
+          (($1.type == TYPE_BOOL) && ($3.type == TYPE_BOOL)))) {
+          printf("*** ERROR ***: Assignment types do not match.\n");
+      }
+      // Register to store comparison result in
+      int resultReg = NextRegister();
+      sprintf(CommentBuffer, "Store v%d >= v%d | Into v%d", $1.targetRegister, $3.targetRegister, resultReg);
+      emitComment(CommentBuffer);
+      emit(NOLABEL, CMPGE, $1.targetRegister, $3.targetRegister, resultReg);
+      $$.targetRegister = resultReg;
 
   }
 
