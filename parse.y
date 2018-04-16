@@ -18,6 +18,7 @@ char *CommentBuffer;
   typeSize type_size;
   Type_Expression basic_type;
   whileJump while_jump;
+  ifJump if_jump;
 }
 
 %token PROG PERIOD VAR
@@ -37,6 +38,7 @@ char *CommentBuffer;
 %type <basic_type> stype
 %type <targetReg> condexp
 %type <while_jump> WHILE
+%type <if_jump> ifhead
 
 
 %start program
@@ -93,6 +95,7 @@ vardcl	: idlist ':' type {
       // Add ID to symbol table
       int new_offset = NextOffset($3.size);
       insert(child_name, $3.type, new_offset);
+      // FREE STRING
       ptr = ptr->next;
 
       sprintf(CommentBuffer, "Declare %s | Type %d | Offset %d", child_name, $3.type, new_offset);
@@ -106,6 +109,7 @@ vardcl	: idlist ':' type {
 idlist	: idlist ',' ID {
     // Get Pointer to current list of ID_list
     $$.ID_list = $1.ID_list;
+    // TODO : Copy String
     // Add another id to list of ID_list
     push($$.ID_list, $3.str);
 
@@ -115,6 +119,7 @@ idlist	: idlist ',' ID {
   | ID		{
     // Start a list of ID_list for the root ID list
     LL * ID_list = create_LL();
+    // TODO : Copy String
     // Add Token name to list
     push(ID_list, $1.str);
 
@@ -186,10 +191,37 @@ cmpdstmt: BEG stmtlist END {
   }
 	;
 
-ifstmt :  ifhead THEN stmt ELSE stmt;
+ifstmt :  ifhead THEN {
+    // True Label
+    emit($1.true_label, NOP, EMPTY, EMPTY, EMPTY);
+    sprintf(CommentBuffer, "THEN BODY");
+    emitComment(CommentBuffer);
+  } stmt {
+    // Jump to end Label
+    emit(NOLABEL, BR, $1.end_label,EMPTY, EMPTY);
+  } ELSE {
+    // False Label
+    emit($1.false_label, NOP, EMPTY, EMPTY, EMPTY);
+    sprintf(CommentBuffer, "ELSE BODY");
+    emitComment(CommentBuffer);
+  } stmt {
+    // End Label
+    emit($1.end_label, NOP, EMPTY, EMPTY, EMPTY);
+    sprintf(CommentBuffer, "END OF IF");
+    emitComment(CommentBuffer);
+  };
 
-ifhead : IF condexp {
-
+ifhead : IF
+  {
+  sprintf(CommentBuffer, "Control for IF STATEMENT");
+  emitComment(CommentBuffer);
+  } condexp {
+    // Store Labels
+    $$.true_label = NextLabel();
+    $$.false_label = NextLabel();
+    $$.end_label = NextLabel();
+    // conditional Break on condexp reg
+    emit(NOLABEL, CBR, $3.targetRegister, $$.true_label, $$.false_label);
   }
   ;
 
@@ -236,8 +268,10 @@ wstmt	: WHILE  {
 astmt : lhs ASG exp {
     if (! ((($1.type == TYPE_INT) && ($3.type == TYPE_INT)) ||
         (($1.type == TYPE_BOOL) && ($3.type == TYPE_BOOL)))) {
-        printf("*** ERROR ***: Assignment types do not match.\n");
+        /* printf("*** ERROR ***: Assignment types do not match.\n"); */
     }
+    // TODO : IMPLEMENT?
+    /* printf("\n*** ERROR ***: Assignment types do not match.\n"); */
     sprintf(CommentBuffer, "Store Value in v%d | At Offset in v%d", $3.targetRegister, $1.targetRegister);
     emitComment(CommentBuffer);
     emit(NOLABEL, STORE, $3.targetRegister, $1.targetRegister, EMPTY);
@@ -252,9 +286,13 @@ lhs	: ID			{ /* BOGUS  - needs to be fixed */
     char * id_name = $1.str;
     SymTabEntry * id_entry = lookup(id_name);
     if(id_entry == NULL){
+
+      /* printf("\n*** ERROR ***: Variable %s not declared.\n", ...); */
       // TODO : !!!!!!!!!!!!!!!!!!!!!
       // REPORT ERROR!
     }
+    /* // TODO : IMPLEMENT */
+    /* printf("\n*** ERROR ***: Variable %s is not a scalar variable.\n", ...); */
 
     int final_addr_reg = NextRegister();
     sprintf(CommentBuffer, "Load %s Offset | %d + 1024 | Into v%d", $1.str, id_entry->offset, final_addr_reg);
@@ -279,14 +317,18 @@ lhs	: ID			{ /* BOGUS  - needs to be fixed */
     if(id_entry == NULL){
       // TODO : !!!!!!!!!!!!!!!!!!!!!
       // REPORT ERROR!
+      /* printf("\n*** ERROR ***: Variable %s not declared.\n", ...); */
     }
+    // TODO : IMPLEMENT
+    /* printf("\n*** ERROR ***: Variable %s is not an array variable.\n", ...); */
     // Evaluate Expersion
     // TODO: ???????????????????
     // Make sure expression is a valid offset
     // make sure expression is int
-    if($3.type != TYPE_BOOL){
+    if($3.type == TYPE_BOOL){
       // TODO : !!!!!!!!!!!!!!!!!!!!!
       // REPORT ERROR!
+      /* printf("\n*** ERROR ***: Array variable %s index type must be integer.\n", ...); */
     }
 
     int final_addr_reg = NextRegister();
@@ -360,7 +402,7 @@ exp	: exp '+' exp		{
   | exp OR exp    {
       int newReg = NextRegister();
       if (! (($1.type == TYPE_BOOL) && ($3.type == TYPE_BOOL))) {
-        printf("*** ERROR ***: Operator types must be boolean.\n");
+        printf("\n*** ERROR ***: Operand type must be boolean.\n");
       }
       $$.type = $1.type;
       $$.targetRegister = newReg;
@@ -376,7 +418,10 @@ exp	: exp '+' exp		{
     if(id_entry == NULL){
       // TODO : !!!!!!!!!!!!!!!!!!!!!
       // REPORT ERROR!
+      /* printf("\n*** ERROR ***: Variable %s not declared.\n", ...); */
     }
+    // TODO : IMPLEMENT
+    /* printf("\n*** ERROR ***: Variable %s is not a scalar variable.\n", ...); */
     // vReg to store value of ID
     int val_reg = NextRegister();
     sprintf(CommentBuffer, "Load %s into vReg %d", id_name, val_reg);
@@ -389,6 +434,9 @@ exp	: exp '+' exp		{
 
   | ID '[' exp ']'	{
     // Look Up ID
+    // TODO : IMPLEMENT
+    /* printf("\n*** ERROR ***: Variable %s not declared.\n", ...); */
+    /* printf("\n*** ERROR ***: Array variable %s index type must be integer.\n", ...); */
   }
 
   | ICONST  {
@@ -428,6 +476,7 @@ condexp	: exp NEQ exp		{
     if (! ((($1.type == TYPE_INT) && ($3.type == TYPE_INT)) ||
         (($1.type == TYPE_BOOL) && ($3.type == TYPE_BOOL)))) {
         printf("*** ERROR ***: Assignment types do not match.\n");
+        /* printf("\n*** ERROR ***: == or != operator with different types.\n"); */
     }
     // Register to store comparison result in
     int resultReg = NextRegister();
@@ -441,6 +490,7 @@ condexp	: exp NEQ exp		{
     if (! ((($1.type == TYPE_INT) && ($3.type == TYPE_INT)) ||
         (($1.type == TYPE_BOOL) && ($3.type == TYPE_BOOL)))) {
         printf("*** ERROR ***: Assignment types do not match.\n");
+        /* printf("\n*** ERROR ***: == or != operator with different types.\n"); */
     }
     // Register to store comparison result in
     int resultReg = NextRegister();
@@ -451,6 +501,8 @@ condexp	: exp NEQ exp		{
   }
 
   | exp LT exp		{
+
+    /* printf("\n*** ERROR ***: Relational operator with illegal type.\n"); */
     if (! ((($1.type == TYPE_INT) && ($3.type == TYPE_INT)) ||
         (($1.type == TYPE_BOOL) && ($3.type == TYPE_BOOL)))) {
         printf("*** ERROR ***: Assignment types do not match.\n");
@@ -464,6 +516,7 @@ condexp	: exp NEQ exp		{
   }
 
   | exp LEQ exp		{
+    /* printf("\n*** ERROR ***: Relational operator with illegal type.\n"); */
     if (! ((($1.type == TYPE_INT) && ($3.type == TYPE_INT)) ||
         (($1.type == TYPE_BOOL) && ($3.type == TYPE_BOOL)))) {
         printf("*** ERROR ***: Assignment types do not match.\n");
@@ -477,6 +530,7 @@ condexp	: exp NEQ exp		{
   }
 
   | exp GT exp		{
+      /* printf("\n*** ERROR ***: Relational operator with illegal type.\n"); */
       if (! ((($1.type == TYPE_INT) && ($3.type == TYPE_INT)) ||
           (($1.type == TYPE_BOOL) && ($3.type == TYPE_BOOL)))) {
           printf("*** ERROR ***: Assignment types do not match.\n");
@@ -490,6 +544,7 @@ condexp	: exp NEQ exp		{
   }
 
   | exp GEQ exp		{
+      /* printf("\n*** ERROR ***: Relational operator with illegal type.\n"); */
       if (! ((($1.type == TYPE_INT) && ($3.type == TYPE_INT)) ||
           (($1.type == TYPE_BOOL) && ($3.type == TYPE_BOOL)))) {
           printf("*** ERROR ***: Assignment types do not match.\n");

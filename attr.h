@@ -64,5 +64,13 @@ typedef struct {
   int false_label;
 } whileJump;
 
+// If Jump Struct
+typedef struct {
+  int true_label;
+  int false_label;
+  int end_label;
+} ifJump;
+
+
 
 #endif
