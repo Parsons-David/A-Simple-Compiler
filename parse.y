@@ -17,6 +17,7 @@ char *CommentBuffer;
   ID_node idNode;
   typeSize type_size;
   Type_Expression basic_type;
+  whileJump while_jump;
 }
 
 %token PROG PERIOD VAR
@@ -34,6 +35,9 @@ char *CommentBuffer;
 %type <type_size> type
 %type <targetReg> vardcl
 %type <basic_type> stype
+%type <targetReg> condexp
+%type <while_jump> WHILE
+
 
 %start program
 
@@ -199,13 +203,27 @@ writestmt: PRINT '(' exp ')' {
 	;
 
 wstmt	: WHILE  {
-
-  }
-  condexp {
-
-  }
-  DO stmt  {
-
+    sprintf(CommentBuffer, "Control for While Statement");
+    emitComment(CommentBuffer);
+    int stmtLabel = NextLabel();
+    int bodyLabel = NextLabel();
+    int endLabel = NextLabel();
+    emit(stmtLabel, NOP, EMPTY, EMPTY, EMPTY);
+    $1.stmt_label = stmtLabel;
+    $1.true_label = bodyLabel;
+    $1.false_label = endLabel;
+  } condexp {
+    // Jump on value of condexp
+    emit(NOLABEL, CBR, $3.targetRegister, $1.true_label, $1.false_label);
+    // Start of Body of While stmt
+    sprintf(CommentBuffer, "Body of While Statement");
+    emitComment(CommentBuffer);
+    emit($1.true_label, NOP, EMPTY, EMPTY, EMPTY);
+  } DO stmt  {
+    sprintf(CommentBuffer, "***End of While Statement***");
+    emitComment(CommentBuffer);
+    // End of While stmt
+    emit($1.false_label, NOP, EMPTY, EMPTY, EMPTY);
   }
 	;
 
@@ -402,15 +420,32 @@ exp	: exp '+' exp		{
 
 
 condexp	: exp NEQ exp		{
-
+    if (! ((($1.type == TYPE_INT) && ($3.type == TYPE_INT)) ||
+        (($1.type == TYPE_BOOL) && ($3.type == TYPE_BOOL)))) {
+        printf("*** ERROR ***: Assignment types do not match.\n");
+    }
+    // Register to store comparison result in
+    int resultReg = NextRegister();
+    sprintf(CommentBuffer, "Store v%d != v%d | Into v%d", $1.targetRegister, $3.targetRegister, resultReg);
+    emitComment(CommentBuffer);
+    emit(NOLABEL, CMPNE, $1.targetRegister, $3.targetRegister, resultReg);
+    $$.targetRegister = resultReg;
   }
 
   | exp EQ exp		{
-
+    if (! ((($1.type == TYPE_INT) && ($3.type == TYPE_INT)) ||
+        (($1.type == TYPE_BOOL) && ($3.type == TYPE_BOOL)))) {
+        printf("*** ERROR ***: Assignment types do not match.\n");
+    }
+    // Register to store comparison result in
+    int resultReg = NextRegister();
+    sprintf(CommentBuffer, "Store v%d == v%d | Into v%d", $1.targetRegister, $3.targetRegister, resultReg);
+    emitComment(CommentBuffer);
+    emit(NOLABEL, CMPEQ, $1.targetRegister, $3.targetRegister, resultReg);
+    $$.targetRegister = 1;
   }
 
   | exp LT exp		{
-
   }
 
   | exp LEQ exp		{

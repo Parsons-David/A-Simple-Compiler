@@ -57,5 +57,12 @@ typedef struct {
   int size;
 } typeSize;
 
+// While Jump Struct
+typedef struct {
+  int stmt_label;
+  int true_label;
+  int false_label;
+} whileJump;
+
 
 #endif
