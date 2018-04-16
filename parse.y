@@ -87,8 +87,12 @@ vardcl	: idlist ':' type {
       char * child_name = (char *) (ptr->data);
       /* printf("%s\n", child_name); */
       // Add ID to symbol table
-      insert(child_name, $3.type, NextOffset($3.size));
+      int new_offset = NextOffset($3.size);
+      insert(child_name, $3.type, new_offset);
       ptr = ptr->next;
+
+      sprintf(CommentBuffer, "Make %s a %d at Offset %d", child_name, $3.type, new_offset);
+      emitComment(CommentBuffer);
     }
     // Free List of ID names
     free_LL(ID_Name_List);
@@ -100,12 +104,18 @@ idlist	: idlist ',' ID {
     $$.ID_list = $1.ID_list;
     // Add another id to list of ID_list
     push($$.ID_list, $3.str);
+
+    sprintf(CommentBuffer, "Add %s to a ID List", $3.str);
+    emitComment(CommentBuffer);
   }
   | ID		{
     // Start a list of ID_list for the root ID list
     LL * ID_list = create_LL();
     // Add Token name to list
     push(ID_list, $1.str);
+
+    sprintf(CommentBuffer, "Add %s to a ID List", $1.str);
+    emitComment(CommentBuffer);
     // Add List pointer to parent
     $$.ID_list = ID_list;
   }
@@ -209,23 +219,75 @@ astmt : lhs ASG exp {
   }
 	;
 
+/* lhs is a targetReg */
 lhs	: ID			{ /* BOGUS  - needs to be fixed */
-    int newReg1 = NextRegister();
-    int newReg2 = NextRegister();
-    int offset = NextOffset(4);
+    // Lookup offset for given id
+    // Send up reg where offset is stored to assign value at the given offset
+    // Send up type for give id
+    char * id_name = $1.str;
+    SymTabEntry * id_entry = lookup(id_name);
+    if(id_entry == NULL){
+      // TODO : !!!!!!!!!!!!!!!!!!!!!
+      // REPORT ERROR!
+    }
 
-    $$.targetRegister = newReg2;
-    $$.type = TYPE_INT;
+    sprintf(CommentBuffer, "Assigning %s | offset %d", $1.str, id_entry->offset);
+    emitComment(CommentBuffer);
+    // Store offset
+    int offset_reg = NextRegister();
+    emit(NOLABEL, LOADI, id_entry->offset, offset_reg, EMPTY);
 
-    /* insert($1.str, TYPE_INT, offset); */
+    int final_addr_reg = NextRegister();
+    emit(NOLABEL, ADD, 0, offset_reg, final_addr_reg);
 
-    emit(NOLABEL, LOADI, offset, newReg1, EMPTY);
-    emit(NOLABEL, ADD, 0, newReg1, newReg2);
-
+    $$.targetRegister = final_addr_reg;
+    $$.type = id_entry->type;
   }
 
   |  ID '[' exp ']' {
+    // Lookup offset for given id
+    // Send up reg where offset is stored to assign value at the given offset,
+    // based of exp
+    // Send up type for give id
+    char * id_name = $1.str;
+    SymTabEntry * id_entry = lookup(id_name);
+    if(id_entry == NULL){
+      // TODO : !!!!!!!!!!!!!!!!!!!!!
+      // REPORT ERROR!
+    }
+    // Evaluate Expersion
+    // TODO: ???????????????????
+    // Make sure expression is a valid offset
+    // make sure expression is int
+    if($3.type != TYPE_BOOL){
+      // TODO : !!!!!!!!!!!!!!!!!!!!!
+      // REPORT ERROR!
+    }
 
+    sprintf(CommentBuffer, "Assigning %s[] | offset %d", $1.str, id_entry->offset);
+    emitComment(CommentBuffer);
+
+    // Store 4 * exp offset in offset_reg
+    // register for i4
+    int four_reg = NextRegister();
+    // loadI 4 => vReg
+    emit(NOLABEL, LOADI, 4, four_reg, EMPTY);
+    // exp.reg
+    int exp_value_reg = $3.targetRegister;
+    int offset_reg = NextRegister();
+    emit(NOLABEL, MULT, four_reg, exp_value_reg, offset_reg);
+    // Store offset_reg + id_offset_value in total_offset_reg
+    // Load ID offset lookup into a vReg
+    int id_offset_value_reg = NextRegister();
+    emit(NOLABEL, LOADI, id_entry->offset, id_offset_value_reg, EMPTY);
+    // Perform offset + id_offset addition
+    int total_offset_reg = NextRegister();
+    emit(NOLABEL, ADD, offset_reg, id_offset_value_reg, total_offset_reg);
+    int final_addr_reg = NextRegister();
+    emit(NOLABEL, ADD, 0, total_offset_reg, final_addr_reg);
+
+    $$.targetRegister = final_addr_reg;
+    $$.type = id_entry->type;
   }
   ;
 
@@ -236,7 +298,6 @@ exp	: exp '+' exp		{
       printf("*** ERROR ***: Operator types must be integer.\n");
     }
     $$.type = $1.type;
-
     $$.targetRegister = newReg;
     emit(NOLABEL, ADD, $1.targetRegister, $3.targetRegister, newReg);
   }
@@ -259,15 +320,22 @@ exp	: exp '+' exp		{
 
 
   | ID {
-    /* BOGUS  - needs to be fixed */
     // Look up ID in symbol table
-    // Create if not in table
-
-    int newReg = NextRegister();
-    int offset = NextOffset(4);
-    $$.targetRegister = newReg;
-    $$.type = TYPE_INT;
-    emit(NOLABEL, LOADAI, 0, offset, newReg);
+    // Lookup offset for given id
+    char * id_name = $1.str;
+    SymTabEntry * id_entry = lookup(id_name);
+    if(id_entry == NULL){
+      // TODO : !!!!!!!!!!!!!!!!!!!!!
+      // REPORT ERROR!
+    }
+    // vReg to store value of ID
+    int val_reg = NextRegister();
+    sprintf(CommentBuffer, "Load %s into vReg %d", id_name, val_reg);
+    emitComment(CommentBuffer);
+    // loadAI 0, offset => vReg
+    emit(NOLABEL, LOADAI, 0, id_entry->offset, val_reg);
+    $$.targetRegister = val_reg;
+    $$.type = id_entry->type;
   }
 
   | ID '[' exp ']'	{
@@ -278,6 +346,8 @@ exp	: exp '+' exp		{
     int newReg = NextRegister();
     $$.targetRegister = newReg;
 	  $$.type = TYPE_INT;
+    sprintf(CommentBuffer, "vReg %d | %d", newReg, $1.num);
+    emitComment(CommentBuffer);
 	  emit(NOLABEL, LOADI, $1.num, newReg, EMPTY);
   }
 
@@ -285,6 +355,8 @@ exp	: exp '+' exp		{
     int newReg = NextRegister(); /* TRUE is encoded as value '1' */
     $$.targetRegister = newReg;
     $$.type = TYPE_BOOL;
+    sprintf(CommentBuffer, "vReg %d | %d", newReg, 1);
+    emitComment(CommentBuffer);
     emit(NOLABEL, LOADI, 1, newReg, EMPTY);
   }
 
@@ -292,6 +364,8 @@ exp	: exp '+' exp		{
     int newReg = NextRegister(); /* FALSE is encoded as value '0' */
     $$.targetRegister = newReg;
     $$.type = TYPE_BOOL;
+    sprintf(CommentBuffer, "vReg %d | %d", newReg, 0);
+    emitComment(CommentBuffer);
     emit(NOLABEL, LOADI, 0, newReg, EMPTY);
   }
 
