@@ -303,11 +303,23 @@ exp	: exp '+' exp		{
   }
 
   | exp '-' exp		{
-
+    int newReg = NextRegister();
+    if (! (($1.type == TYPE_INT) && ($3.type == TYPE_INT))) {
+      printf("*** ERROR ***: Operator types must be integer.\n");
+    }
+    $$.type = $1.type;
+    $$.targetRegister = newReg;
+    emit(NOLABEL, SUB, $1.targetRegister, $3.targetRegister, newReg);
   }
 
   | exp '*' exp		{
-
+    int newReg = NextRegister();
+    if (! (($1.type == TYPE_INT) && ($3.type == TYPE_INT))) {
+      printf("*** ERROR ***: Operator types must be integer.\n");
+    }
+    $$.type = $1.type;
+    $$.targetRegister = newReg;
+    emit(NOLABEL, MULT, $1.targetRegister, $3.targetRegister, newReg);
   }
 
   | exp AND exp		{
