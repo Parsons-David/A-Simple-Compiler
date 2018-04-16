@@ -311,11 +311,23 @@ exp	: exp '+' exp		{
   }
 
   | exp AND exp		{
-
+      int newReg = NextRegister();
+      if (! (($1.type == TYPE_BOOL) && ($3.type == TYPE_BOOL))) {
+        printf("*** ERROR ***: Operator types must be boolean.\n");
+      }
+      $$.type = $1.type;
+      $$.targetRegister = newReg;
+      emit(NOLABEL, AND_INSTR, $1.targetRegister, $3.targetRegister, newReg);
   }
 
   | exp OR exp    {
-
+      int newReg = NextRegister();
+      if (! (($1.type == TYPE_BOOL) && ($3.type == TYPE_BOOL))) {
+        printf("*** ERROR ***: Operator types must be boolean.\n");
+      }
+      $$.type = $1.type;
+      $$.targetRegister = newReg;
+      emit(NOLABEL, OR_INSTR, $1.targetRegister, $3.targetRegister, newReg);
   }
 
 
