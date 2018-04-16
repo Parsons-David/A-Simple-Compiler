@@ -1,0 +1,12 @@
+program main;
+var n, r, i: integer;
+begin
+  n := 5;
+  r := 1;
+  while n > 1 do
+  begin
+    r := r * n;
+    n := n - 1
+  end;
+  print(r)
+end.
