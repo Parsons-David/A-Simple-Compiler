@@ -91,7 +91,7 @@ vardcl	: idlist ':' type {
       insert(child_name, $3.type, new_offset);
       ptr = ptr->next;
 
-      sprintf(CommentBuffer, "Make %s a %d at Offset %d", child_name, $3.type, new_offset);
+      sprintf(CommentBuffer, "Declare %s | Type %d | Offset %d", child_name, $3.type, new_offset);
       emitComment(CommentBuffer);
     }
     // Free List of ID names
@@ -105,7 +105,7 @@ idlist	: idlist ',' ID {
     // Add another id to list of ID_list
     push($$.ID_list, $3.str);
 
-    sprintf(CommentBuffer, "Add %s to a ID List", $3.str);
+    sprintf(CommentBuffer, "ID List.add(%s)", $3.str);
     emitComment(CommentBuffer);
   }
   | ID		{
@@ -114,7 +114,7 @@ idlist	: idlist ',' ID {
     // Add Token name to list
     push(ID_list, $1.str);
 
-    sprintf(CommentBuffer, "Add %s to a ID List", $1.str);
+    sprintf(CommentBuffer, "ID List.add(%s)", $1.str);
     emitComment(CommentBuffer);
     // Add List pointer to parent
     $$.ID_list = ID_list;
@@ -215,6 +215,8 @@ astmt : lhs ASG exp {
         (($1.type == TYPE_BOOL) && ($3.type == TYPE_BOOL)))) {
         printf("*** ERROR ***: Assignment types do not match.\n");
     }
+    sprintf(CommentBuffer, "Store Value in v%d | At Offset in v%d", $3.targetRegister, $1.targetRegister);
+    emitComment(CommentBuffer);
     emit(NOLABEL, STORE, $3.targetRegister, $1.targetRegister, EMPTY);
   }
 	;
@@ -231,13 +233,13 @@ lhs	: ID			{ /* BOGUS  - needs to be fixed */
       // REPORT ERROR!
     }
 
-    sprintf(CommentBuffer, "Assigning %s | offset %d", $1.str, id_entry->offset);
+    int final_addr_reg = NextRegister();
+    sprintf(CommentBuffer, "Load %s Offset | %d + 1024 | Into v%d", $1.str, id_entry->offset, final_addr_reg);
     emitComment(CommentBuffer);
     // Store offset
     int offset_reg = NextRegister();
     emit(NOLABEL, LOADI, id_entry->offset, offset_reg, EMPTY);
 
-    int final_addr_reg = NextRegister();
     emit(NOLABEL, ADD, 0, offset_reg, final_addr_reg);
 
     $$.targetRegister = final_addr_reg;
@@ -264,7 +266,8 @@ lhs	: ID			{ /* BOGUS  - needs to be fixed */
       // REPORT ERROR!
     }
 
-    sprintf(CommentBuffer, "Assigning %s[] | offset %d", $1.str, id_entry->offset);
+    int final_addr_reg = NextRegister();
+    sprintf(CommentBuffer, "Load %s[exp] Offset | %d + 1024 + (4 * exp) | Into v%d", $1.str, id_entry->offset, final_addr_reg);
     emitComment(CommentBuffer);
 
     // Store 4 * exp offset in offset_reg
@@ -283,7 +286,6 @@ lhs	: ID			{ /* BOGUS  - needs to be fixed */
     // Perform offset + id_offset addition
     int total_offset_reg = NextRegister();
     emit(NOLABEL, ADD, offset_reg, id_offset_value_reg, total_offset_reg);
-    int final_addr_reg = NextRegister();
     emit(NOLABEL, ADD, 0, total_offset_reg, final_addr_reg);
 
     $$.targetRegister = final_addr_reg;
@@ -370,7 +372,7 @@ exp	: exp '+' exp		{
     int newReg = NextRegister();
     $$.targetRegister = newReg;
 	  $$.type = TYPE_INT;
-    sprintf(CommentBuffer, "vReg %d | %d", newReg, $1.num);
+    sprintf(CommentBuffer, "Load %d | Into v%d", $1.num, newReg);
     emitComment(CommentBuffer);
 	  emit(NOLABEL, LOADI, $1.num, newReg, EMPTY);
   }
@@ -379,7 +381,7 @@ exp	: exp '+' exp		{
     int newReg = NextRegister(); /* TRUE is encoded as value '1' */
     $$.targetRegister = newReg;
     $$.type = TYPE_BOOL;
-    sprintf(CommentBuffer, "vReg %d | %d", newReg, 1);
+    sprintf(CommentBuffer, "Load %d \"TRUE\" | Into v%d", 1, newReg);
     emitComment(CommentBuffer);
     emit(NOLABEL, LOADI, 1, newReg, EMPTY);
   }
@@ -388,7 +390,7 @@ exp	: exp '+' exp		{
     int newReg = NextRegister(); /* FALSE is encoded as value '0' */
     $$.targetRegister = newReg;
     $$.type = TYPE_BOOL;
-    sprintf(CommentBuffer, "vReg %d | %d", newReg, 0);
+    sprintf(CommentBuffer, "Load %d \"FALSE\" | Into v%d", 0, newReg);
     emitComment(CommentBuffer);
     emit(NOLABEL, LOADI, 0, newReg, EMPTY);
   }
