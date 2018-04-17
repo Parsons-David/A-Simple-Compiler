@@ -1,0 +1,22 @@
+program main;
+var
+  fibb: array[47] of integer;
+  i: integer;
+  n: integer;
+begin
+  n := 47;
+  fibb[0] := 0;
+  fibb[1] := 1;
+  i := 2;
+  while i < n do
+  begin
+    fibb[i] := fibb[i - 1] + fibb[i - 2];
+    i := i + 1
+  end;
+  i := 0;
+  while i < n do
+  begin
+    print(fibb[i]);
+    i := i + 1
+  end
+end.
