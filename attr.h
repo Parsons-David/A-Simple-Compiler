@@ -39,6 +39,8 @@ typedef union {int num; char *str;} tokentype;
 
 typedef enum type_expression {TYPE_INT=0, TYPE_BOOL, TYPE_ERROR} Type_Expression;
 
+typedef enum varType {TYPE_SCALAR=0, TYPE_ARRAY} varType;
+
 typedef struct {
   Type_Expression type;
   int targetRegister;
@@ -55,6 +57,8 @@ typedef struct {
   Type_Expression type;
   // Size of the new vars, > 1 for arrays..
   int size;
+  // SCALAR or ARRAY
+  varType var_type;
 } typeSize;
 
 // While Jump Struct

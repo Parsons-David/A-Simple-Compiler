@@ -101,7 +101,7 @@ vardcl	: idlist ':' type {
       /* printf("%s\n", child_name); */
       // Add ID to symbol table
       int new_offset = NextOffset($3.size);
-      insert(child_name, $3.type, new_offset);
+      insert(child_name, $3.type, new_offset, $3.var_type);
 
       sprintf(CommentBuffer, "Declare %s | Type %d | Offset %d", child_name, $3.type, new_offset);
       emitComment(CommentBuffer);
@@ -155,15 +155,17 @@ idlist	: idlist ',' ID {
 /* type is a typeSize */
 /* stype is a basic_type */
 type : ARRAY '[' ICONST ']' OF stype {
-    // TODO : PASS UP ARRAY TYPE
+    // PASS UP ARRAY TYPE
+    $$.var_type = TYPE_ARRAY;
     // Pass up stype type
     $$.type = $6;
     // and len(Array) (i.e. ICONST value)
     $$.size = $3.num;
   }
-    // TODO : PASS UP SCALAR TYPE
-    /* stype is a basic_type */
-    | stype {
+  /* stype is a basic_type */
+  | stype {
+    // PASS UP SCALAR TYPE
+    $$.var_type = TYPE_SCALAR;
     // Pass up stype
     $$.type = $1;
     // size is 1 since its not an array
