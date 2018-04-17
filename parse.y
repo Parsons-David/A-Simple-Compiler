@@ -354,9 +354,9 @@ lhs	: ID {
       printf("\n*** ERROR ***: Variable %s not declared.\n", id_name);
     }
     /* // TODO : IMPLEMENT */
-    /* if(id_entry->ARRAY_OR_SCALAR != SCALAR){
+    if(id_entry->var_type != TYPE_SCALAR){
       printf("\n*** ERROR ***: Variable %s is not a scalar variable.\n", id_name);
-    } */
+    }
 
     // Register where the final computed address will live
     int final_addr_reg = NextRegister();
@@ -386,14 +386,14 @@ lhs	: ID {
       printf("\n*** ERROR ***: Variable %s not declared.\n", id_entry);
     }
     // TODO : IMPLEMENT
-    /* if(id_entry->ARRAY_OR_SCALAR != ARRAY){
+    if(id_entry->var_type != TYPE_ARRAY){
       printf("\n*** ERROR ***: Variable %s is not an array variable.\n", id_name);
-    } */
+    }
     // Evaluate Expersion?
     // TODO: ???????????????????
     // Make sure expression is a valid offset??????
     // make sure expression is int
-    if($3.type == TYPE_BOOL){
+    if($3.type != TYPE_INT){
       // TODO : !!!!!!!!!!!!!!!!!!!!!
       // REPORT ERROR!
       printf("\n*** ERROR ***: Array variable %s index type must be integer.\n", id_name);
@@ -520,9 +520,9 @@ exp	: exp '+' exp {
       printf("\n*** ERROR ***: Variable %s not declared.\n", id_entry);
     }
     /* // TODO : IMPLEMENT */
-    /* if(id_entry->ARRAY_OR_SCALAR != SCALAR){
+    if(id_entry->var_type != TYPE_SCALAR){
       printf("\n*** ERROR ***: Variable %s is not a scalar variable.\n", id_name);
-    } */
+    }
     // vReg to store value of ID
     int val_reg = NextRegister();
 
@@ -549,14 +549,14 @@ exp	: exp '+' exp {
       printf("\n*** ERROR ***: Variable %s not declared.\n", id_entry);
     }
     // TODO : IMPLEMENT
-    /* if(id_entry->ARRAY_OR_SCALAR != ARRAY){
+    if(id_entry->var_type != TYPE_ARRAY){
       printf("\n*** ERROR ***: Variable %s is not an array variable.\n", id_name);
-    } */
+    }
     // Evaluate Expersion?
     // TODO: ???????????????????
     // Make sure expression is a valid offset??????
     // make sure expression is int
-    if($3.type == TYPE_BOOL){
+    if($3.type != TYPE_INT){
       // TODO : !!!!!!!!!!!!!!!!!!!!!
       // REPORT ERROR!
       printf("\n*** ERROR ***: Array variable %s index type must be integer.\n", id_name);
