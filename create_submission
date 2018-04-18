@@ -1,0 +1,2 @@
+#!/usr/bin/env bash
+tar -cvf proj2.tar attr.c attr.h symtab.c symtab.h parse.y
