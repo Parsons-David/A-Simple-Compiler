@@ -331,7 +331,7 @@ astmt : lhs ASG exp {
     // Make sure the lhs and rhs types match, emit error if they aren't
     if (! ((($1.type == TYPE_INT) && ($3.type == TYPE_INT)) ||
         (($1.type == TYPE_BOOL) && ($3.type == TYPE_BOOL)))) {
-        printf("*** ERROR ***: Assignment types do not match.\n");
+        printf("\n*** ERROR ***: Assignment types do not match.\n");
     }
     // TODO : BLACK MAGIC???
     sprintf(CommentBuffer, "Store Value in v%d | At Offset in v%d", $3.targetRegister, $1.targetRegister);
@@ -352,6 +352,7 @@ lhs	: ID {
       // TODO : !!!!!!!!!!!!!!!!!!!!!
       // REPORT ERROR!
       printf("\n*** ERROR ***: Variable %s not declared.\n", id_name);
+      return 1;
     }
     /* // TODO : IMPLEMENT */
     if(id_entry->var_type != TYPE_SCALAR){
@@ -383,7 +384,8 @@ lhs	: ID {
     if(id_entry == NULL){
       // TODO : !!!!!!!!!!!!!!!!!!!!!
       // REPORT ERROR!
-      printf("\n*** ERROR ***: Variable %s not declared.\n", id_entry);
+      printf("\n*** ERROR ***: Variable %s not declared.\n", id_name);
+      return 1;
     }
     // TODO : IMPLEMENT
     if(id_entry->var_type != TYPE_ARRAY){
@@ -518,6 +520,7 @@ exp	: exp '+' exp {
       // TODO : !!!!!!!!!!!!!!!!!!!!!
       // REPORT ERROR!
       printf("\n*** ERROR ***: Variable %s not declared.\n", id_entry);
+      return 1;
     }
     /* // TODO : IMPLEMENT */
     if(id_entry->var_type != TYPE_SCALAR){
@@ -547,6 +550,7 @@ exp	: exp '+' exp {
       // TODO : !!!!!!!!!!!!!!!!!!!!!
       // REPORT ERROR!
       printf("\n*** ERROR ***: Variable %s not declared.\n", id_entry);
+      return 1;
     }
     // TODO : IMPLEMENT
     if(id_entry->var_type != TYPE_ARRAY){
