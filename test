@@ -18,6 +18,9 @@ TEST_CASE_PATH = "testcases/"
 if not os.path.exists(TEST_CASE_PATH):
     print("\'%s\' not found.\nPlease add it to the same directory as the test script." % (TEST_CASE_PATH))
     exit()
+ERRORS_PATH = "testerrors/"
+CAN_TEST_ERRORS = os.path.exists(ERRORS_PATH)
+
 SOL_CODEGEN = "./sol-codegen"
 SOL_CODEGEN_OUTPUT_FILE = "iloc.out"
 MY_CODEGEN = "./codegen"
@@ -32,6 +35,7 @@ def main():
     print(os.popen(CREATE).read())
     # Gather all the testcase files from the target directory
     all_files = gather_file_names(TEST_CASE_PATH)
+    error_files = gather_file_names(ERRORS_PATH)
     # print(all_files)
     # Generate Dictionary of Results
     # JSON like dict of test file information
@@ -77,7 +81,44 @@ def main():
             print_report(error_report)
         else:
             print("\r****** %s PASSED ******" % short_file)
+
+    if CAN_TEST_ERRORS:
+        errorcases = {}
+        # Build File_args
+        for test_file in error_files:
+            # Build base_output
+            errorcases[test_file] = {}
+            # Run each file once to get expected output
+            output = run_sol_codegen_output(test_file)
+            testcases[test_file] = get_first_error_and_line(output)
+        # print(json.dumps(testcases, indent=4))
+        for case in errorcases:
+            short_file = os.path.basename(case)
+
+            # Get base sol-codegen output
+            experimental = testcases[case]
+            base_line = experimental['line']
+            base_error = experimental['error'].strip()
+
+            print("\r****** Testing %s ******" % (short_file), end='')
+            my_output = run_my_codegen_output(case)
+            my_output = get_first_error_and_line(my_output)
+
+            my_line = my_output['line']
+            my_error = my_output['error'].strip()
+
+            error_report = (my_line == base_line) and (base_error == my_error)
+
+            # If no report is sent, there's no mismatch, we passed!
+            if not error_report:
+                print(ERASE_LINE, end = '')
+                print("\r****** %s FAILED ******" % short_file)
+                print("\t Expected %s on %d" % (base_error, base_line))
+                print("\t Got %s on %d" % (my_error, my_line))
+            else:
+                print("\r****** %s PASSED ******" % short_file)
     print(os.popen(CLEAN).read())
+
 
 def run_sol_codegen(filename):
     # print(filename)
@@ -91,6 +132,21 @@ def run_sol_codegen(filename):
         print(output)
         return None
     return SOL_CODEGEN_OUTPUT_FILE
+
+def run_sol_codegen_output(filename):
+    # print(filename)
+    output_lines = []
+    # Otherwise do add them
+    exe_line = ('%s < %s'  % (SOL_CODEGEN, escape_filename(filename)))
+    # print(exe_line)
+    output = os.popen(exe_line).read()
+    if not os.path.exists(SOL_CODEGEN_OUTPUT_FILE):
+        print("Error Running Code Gen on file: %s in rul_sol_codegen" % (filename))
+        print(output)
+        return None
+
+    os.remove(SOL_CODEGEN_OUTPUT_FILE)
+    return output
 
 # Adds '' to file name so spaces don't need to be escaped
 def escape_filename(filename):
@@ -127,6 +183,20 @@ def run_my_codegen(filename):
         return None
     return SOL_CODEGEN_OUTPUT_FILE
 
+def run_my_codegen_output(filename):
+    # print(filename)
+    output_lines = []
+    # Otherwise do add them
+    exe_line = ('%s < %s'  % (MY_CODEGEN, escape_filename(filename)))
+    # print(exe_line)
+    output = os.popen(exe_line).read()
+    if not os.path.exists(SOL_CODEGEN_OUTPUT_FILE):
+        print("Error Running Code Gen on file: %s in rul_sol_codegen" % (filename))
+        print(output)
+        return None
+    os.remove(SOL_CODEGEN_OUTPUT_FILE)
+    return output
+
 
 # Collections *.i Files to test allocator on
 def gather_file_names(testcase_dir):
@@ -154,6 +224,20 @@ def get_match_output_report(base, my):
     if passed:
         return None
     return report
+
+def get_first_error_and_line(output_file):
+    output = {
+        "line": 0,
+        "error": None
+    }
+    lines = (output_file.split("\n"))
+    for i in range(len(lines)):
+        line = lines[i]
+        if "* ERROR *" in line:
+            output["line"] = i
+            output["error"] = line
+            return output
+        # print(line)
 
 def print_report(report):
     for line in report:

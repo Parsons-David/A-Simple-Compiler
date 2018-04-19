@@ -1,0 +1,10 @@
+program main;
+var
+  i: integer;
+  b: array[10] of integer;
+  c: array[10] of integer;
+begin
+  c[false] := 1;
+  c[0] := 1;
+  print(b[0])
+end.
