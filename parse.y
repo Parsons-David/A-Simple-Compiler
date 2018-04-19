@@ -442,7 +442,7 @@ exp	: exp '+' exp {
     int newReg = NextRegister();
     // Must add ints
     if (! (($1.type == TYPE_INT) && ($3.type == TYPE_INT))) {
-      printf("*** ERROR ***: Operator types must be integer.\n");
+      printf("\n*** ERROR ***: Operand type must be integer.\n");
     }
     // add r1, r2 -> r3
     emit(NOLABEL, ADD, $1.targetRegister, $3.targetRegister, newReg);
@@ -457,7 +457,7 @@ exp	: exp '+' exp {
     int newReg = NextRegister();
     // Must sub ints
     if (! (($1.type == TYPE_INT) && ($3.type == TYPE_INT))) {
-      printf("*** ERROR ***: Operator types must be integer.\n");
+      printf("\n*** ERROR ***: Operand type must be integer.\n");
     }
     // sub r1, r2 -> r3
     emit(NOLABEL, SUB, $1.targetRegister, $3.targetRegister, newReg);
@@ -472,7 +472,7 @@ exp	: exp '+' exp {
     int newReg = NextRegister();
     // Must mult ints
     if (! (($1.type == TYPE_INT) && ($3.type == TYPE_INT))) {
-      printf("*** ERROR ***: Operator types must be integer.\n");
+      printf("\n*** ERROR ***: Operand type must be integer.\n");
     }
     // mult r1, r2 -> r3
     emit(NOLABEL, MULT, $1.targetRegister, $3.targetRegister, newReg);
@@ -487,7 +487,7 @@ exp	: exp '+' exp {
     int newReg = NextRegister();
     // Logical Operations must be done on booleans
     if (! (($1.type == TYPE_BOOL) && ($3.type == TYPE_BOOL))) {
-      printf("*** ERROR ***: Operator types must be boolean.\n");
+      printf("\n*** ERROR ***: Operand type must be boolean.\n");
     }
     // and r1, r2 -> r3
     emit(NOLABEL, AND_INSTR, $1.targetRegister, $3.targetRegister, newReg);
