@@ -348,12 +348,10 @@ lhs	: ID {
     char * id_name = $1.str;
     SymTabEntry * id_entry = lookup(id_name);
     if(id_entry == NULL){
-      // TODO : !!!!!!!!!!!!!!!!!!!!!
       // REPORT ERROR!
       printf("\n*** ERROR ***: Variable %s not declared.\n", id_name);
       return 1;
     }
-    /* // TODO : IMPLEMENT */
     if(id_entry->var_type != TYPE_SCALAR){
       printf("\n*** ERROR ***: Variable %s is not a scalar variable.\n", id_name);
     }
@@ -387,7 +385,6 @@ lhs	: ID {
     if(id_entry->var_type != TYPE_ARRAY){
       printf("\n*** ERROR ***: Variable %s is not an array variable.\n", id_name);
     }
-    // Make sure expression is a valid offset??????
     // make sure expression is int
     if($3.type != TYPE_INT){
       printf("\n*** ERROR ***: Array variable %s index type must be integer.\n", id_name);
@@ -544,7 +541,6 @@ exp	: exp '+' exp {
     if(id_entry->var_type != TYPE_ARRAY){
       printf("\n*** ERROR ***: Variable %s is not an array variable.\n", id_name);
     }
-    // Make sure expression is a valid offset??????
     // make sure expression is int
     if($3.type != TYPE_INT){
       // REPORT ERROR!
