@@ -1,0 +1,11 @@
+program main;
+var a, b: integer;
+  c, d: boolean;
+  v: array[2] of integer;
+begin
+  c := false;
+  d := true;
+  d := a[7];
+  print(a);
+  print(5)
+end.

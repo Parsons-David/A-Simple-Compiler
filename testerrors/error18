@@ -1,0 +1,10 @@
+program main;
+var a, b: integer;
+  c, d: boolean;
+begin
+  c := false;
+  d := true;
+  d := a AND b;
+  print(a);
+  print(5)
+end.

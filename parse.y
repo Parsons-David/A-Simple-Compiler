@@ -333,7 +333,6 @@ astmt : lhs ASG exp {
         (($1.type == TYPE_BOOL) && ($3.type == TYPE_BOOL)))) {
         printf("\n*** ERROR ***: Assignment types do not match.\n");
     }
-    // TODO : BLACK MAGIC???
     sprintf(CommentBuffer, "Store Value in v%d | At Offset in v%d", $3.targetRegister, $1.targetRegister);
     emitComment(CommentBuffer);
     // Store lhs value into rhs offset
@@ -382,22 +381,15 @@ lhs	: ID {
     char * id_name = $1.str;
     SymTabEntry * id_entry = lookup(id_name);
     if(id_entry == NULL){
-      // TODO : !!!!!!!!!!!!!!!!!!!!!
-      // REPORT ERROR!
       printf("\n*** ERROR ***: Variable %s not declared.\n", id_name);
       return 1;
     }
-    // TODO : IMPLEMENT
     if(id_entry->var_type != TYPE_ARRAY){
       printf("\n*** ERROR ***: Variable %s is not an array variable.\n", id_name);
     }
-    // Evaluate Expersion?
-    // TODO: ???????????????????
     // Make sure expression is a valid offset??????
     // make sure expression is int
     if($3.type != TYPE_INT){
-      // TODO : !!!!!!!!!!!!!!!!!!!!!
-      // REPORT ERROR!
       printf("\n*** ERROR ***: Array variable %s index type must be integer.\n", id_name);
     }
 
@@ -517,12 +509,10 @@ exp	: exp '+' exp {
     char * id_name = $1.str;
     SymTabEntry * id_entry = lookup(id_name);
     if(id_entry == NULL){
-      // TODO : !!!!!!!!!!!!!!!!!!!!!
       // REPORT ERROR!
-      printf("\n*** ERROR ***: Variable %s not declared.\n", id_entry);
+      printf("\n*** ERROR ***: Variable %s not declared.\n", id_name);
       return 1;
     }
-    /* // TODO : IMPLEMENT */
     if(id_entry->var_type != TYPE_SCALAR){
       printf("\n*** ERROR ***: Variable %s is not a scalar variable.\n", id_name);
     }
@@ -547,21 +537,16 @@ exp	: exp '+' exp {
     char * id_name = $1.str;
     SymTabEntry * id_entry = lookup(id_name);
     if(id_entry == NULL){
-      // TODO : !!!!!!!!!!!!!!!!!!!!!
       // REPORT ERROR!
-      printf("\n*** ERROR ***: Variable %s not declared.\n", id_entry);
+      printf("\n*** ERROR ***: Variable %s not declared.\n", id_name);
       return 1;
     }
-    // TODO : IMPLEMENT
     if(id_entry->var_type != TYPE_ARRAY){
       printf("\n*** ERROR ***: Variable %s is not an array variable.\n", id_name);
     }
-    // Evaluate Expersion?
-    // TODO: ???????????????????
     // Make sure expression is a valid offset??????
     // make sure expression is int
     if($3.type != TYPE_INT){
-      // TODO : !!!!!!!!!!!!!!!!!!!!!
       // REPORT ERROR!
       printf("\n*** ERROR ***: Array variable %s index type must be integer.\n", id_name);
     }
