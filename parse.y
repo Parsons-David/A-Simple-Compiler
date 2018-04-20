@@ -711,7 +711,6 @@ condexp	: exp NEQ exp {
   | exp GEQ exp	{
     // Must perform these ops on ints
     if (! ((($1.type == TYPE_INT) && ($3.type == TYPE_INT))) ){
-        // TODO : IMPLEMENT !!!!!!!
         printf("\n*** ERROR ***: Relational operator with illegal type.\n");
     }
     // Register to store comparison result in
