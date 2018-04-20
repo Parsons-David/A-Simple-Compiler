@@ -7,6 +7,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "instrutil.h"
+#include "valnum.h"
 
 static next_register = 1; /* register 0 is reserved */
 static next_label = 0;
@@ -109,36 +110,97 @@ emit(int label_index,
   }
 
   else {
-
+    InitExpressionTable();
+    char buffer[1000];
+    char * current_key = NULL;
+    SubExpression * cse = NULL;
     switch (opcode) { /* ---------------------- CSE OPTIMIZED ------------------------------- */
+
     case NOP:
       fprintf(outfile, "%s\t nop \n", label);
       return -1;
       break;
+
     case ADD:
-      fprintf(outfile, "%s\t add r%d, r%d \t=> r%d \n", label, field1, field2, field3);
-      return field3;
+      sprintf(buffer, "add r%d, r%d", field1, field2);
+      current_key = strdup(buffer);
+      cse = lookup_expression(current_key);
+      printf("LOOKING FOR %s\n", current_key);
+      PrintExpressionTable();
+      if (cse == NULL) {
+        insert_expression(current_key, field3);
+        fprintf(outfile, "%s\t add r%d, r%d \t=> r%d \n", label, field1, field2, field3);
+        return field3;
+      } else {
+        return cse->virtualRegister;
+      }
       break;
+
     case SUB:
-      fprintf(outfile, "%s\t sub r%d, r%d \t=> r%d \n", label, field1, field2, field3);
-      return field3;
+      sprintf(buffer, "sub r%d, r%d", field1, field2);
+      current_key = strdup(buffer);
+      cse = lookup_expression(current_key);
+      printf("LOOKING FOR %s\n", current_key);
+      PrintExpressionTable();
+      if (cse == NULL) {
+        insert_expression(current_key, field3);
+        fprintf(outfile, "%s\t sub r%d, r%d \t=> r%d \n", label, field1, field2, field3);
+        return field3;
+      } else {
+        return cse->virtualRegister;
+      }
       break;
+
     case MULT:
-      fprintf(outfile, "%s\t mult r%d, r%d \t=> r%d \n", label, field1, field2, field3);
-      return field3;
+      sprintf(buffer, "mult r%d, r%d", field1, field2);
+      current_key = strdup(buffer);
+      cse = lookup_expression(current_key);
+      printf("LOOKING FOR %s\n", current_key);
+      PrintExpressionTable();
+      if (cse == NULL) {
+        insert_expression(current_key, field3);
+        fprintf(outfile, "%s\t mult r%d, r%d \t=> r%d \n", label, field1, field2, field3);
+        return field3;
+      } else {
+        return cse->virtualRegister;
+      }
       break;
+
     case LOADI:
-      /* Example: loadI 1024 => r1 */
-      fprintf(outfile, "%s\t loadI %d \t=> r%d \n", label, field1, field2);
-      return field2;
+      sprintf(buffer, "loadI %d", field1);
+      current_key = strdup(buffer);
+      cse = lookup_expression(current_key);
+      printf("LOOKING FOR %s\n", current_key);
+      PrintExpressionTable();
+      if (cse == NULL) {
+        insert_expression(current_key, field2);
+        /* Example: loadI 1024 => r1 */
+        fprintf(outfile, "%s\t loadI %d \t=> r%d \n", label, field1, field2);
+        return field2;
+      } else {
+        return cse->virtualRegister;
+      }
       break;
+
     case LOADAI:
-      /* Example: loadAI r1, 16 => r3 */
-      fprintf(outfile, "%s\t loadAI r%d, %d \t=> r%d \n", label, field1, field2, field3);
-      return field3;
+      sprintf(buffer, "loadAI r%d, %d", field1, field2);
+      current_key = strdup(buffer);
+      cse = lookup_expression(current_key);
+      printf("LOOKING FOR %s\n", current_key);
+      PrintExpressionTable();
+      if (cse == NULL) {
+        insert_expression(current_key, field3);
+        /* Example: loadAI r1, 16 => r3 */
+        fprintf(outfile, "%s\t loadAI r%d, %d \t=> r%d \n", label, field1, field2, field3);
+        return field3;
+      } else {
+        return cse->virtualRegister;
+      }
       break;
+
     case STOREAI:
       /* Example: storeAI r1 => r2, 16 */
+      flushExpressionTable();
       fprintf(outfile, "%s\t storeAI r%d \t=> r%d, %d \n", label, field1, field2, field3);
       break;
     case OUTPUTAI:

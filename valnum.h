@@ -10,6 +10,21 @@
 #include <string.h>
 
 /* INSERT WHATEVER YOU NEED FOR THE VALUE NUMBER HASH FUNCTION */
+typedef struct {
+  char *key;
+  int virtualRegister;
+} SubExpression;
 
+extern
+void InitExpressionTable();
+
+extern
+SubExpression * lookup_expression(char *key);
+
+extern
+void insert_expression(char *key, int virtualRegister);
+
+extern
+void PrintExpressionTable();
 
 #endif
