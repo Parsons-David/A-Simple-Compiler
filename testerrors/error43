@@ -1,0 +1,14 @@
+program main;
+var a, b: integer;
+    i: integer;
+    v: boolean;
+begin
+  a := 1;
+  b := 10;
+  while v >= 1 do
+  begin
+    a := a + 2;
+    b := b + 1
+  end;
+  print(a)
+end.

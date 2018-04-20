@@ -140,12 +140,9 @@ def run_sol_codegen_output(filename):
     exe_line = ('%s < %s'  % (SOL_CODEGEN, escape_filename(filename)))
     # print(exe_line)
     output = os.popen(exe_line).read()
-    if not os.path.exists(SOL_CODEGEN_OUTPUT_FILE):
-        print("Error Running Code Gen on file: %s in rul_sol_codegen" % (filename))
-        print(output)
-        return None
 
-    os.remove(SOL_CODEGEN_OUTPUT_FILE)
+    if os.path.exists(SOL_CODEGEN_OUTPUT_FILE):
+        os.remove(SOL_CODEGEN_OUTPUT_FILE)
     return output
 
 # Adds '' to file name so spaces don't need to be escaped
@@ -190,11 +187,8 @@ def run_my_codegen_output(filename):
     exe_line = ('%s < %s'  % (MY_CODEGEN, escape_filename(filename)))
     # print(exe_line)
     output = os.popen(exe_line).read()
-    if not os.path.exists(SOL_CODEGEN_OUTPUT_FILE):
-        print("Error Running Code Gen on file: %s in rul_sol_codegen" % (filename))
-        print(output)
-        return None
-    os.remove(SOL_CODEGEN_OUTPUT_FILE)
+    if os.path.exists(SOL_CODEGEN_OUTPUT_FILE):
+        os.remove(SOL_CODEGEN_OUTPUT_FILE)
     return output
 
 
