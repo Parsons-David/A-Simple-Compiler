@@ -82,6 +82,8 @@ def main():
         else:
             print("\r****** %s PASSED ******" % short_file)
 
+    print("\n****** TEST CASES COMPLETE ******\n")
+
     if CAN_TEST_ERRORS:
         errorcases = {}
         # Build File_args
@@ -117,6 +119,7 @@ def main():
                 print("\t Got %s on %d" % (my_error, my_line))
             else:
                 print("\r****** %s PASSED ******" % short_file)
+        print("\n****** ERROR CASES COMPLETE ******\n")
     print(os.popen(CLEAN).read())
 
 
@@ -198,7 +201,7 @@ def gather_file_names(testcase_dir):
     for root, dirs, files in os.walk(os.path.abspath(testcase_dir)):
         for file in files:
             test_files.append(os.path.join(root, file))
-    return test_files
+    return sorted(test_files)
 
 
 def get_match_output_report(base, my):
