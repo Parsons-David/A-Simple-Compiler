@@ -1,0 +1,8 @@
+*.o
+lex.yy.c
+parse.output
+parse.tab.c
+parse.tab.h
+codegen
+iloc.out
+proj2.tar
