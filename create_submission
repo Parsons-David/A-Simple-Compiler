@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+if [ -f "proj3.tar" ]; then
+  rm proj3.tar
+fi
+tar -cvf proj3.tar instrutil.c instrutil.h valnum.c valnum.h README.pdf
