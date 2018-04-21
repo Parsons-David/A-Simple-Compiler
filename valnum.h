@@ -10,6 +10,11 @@
 #include <string.h>
 
 /* INSERT WHATEVER YOU NEED FOR THE VALUE NUMBER HASH FUNCTION */
+
+#include <stdlib.h>
+#include <errno.h>
+#include <stdio.h>
+
 typedef struct {
   char *key;
   int virtualRegister;
@@ -18,13 +23,47 @@ typedef struct {
 extern
 void InitExpressionTable();
 
-extern
-SubExpression * lookup_expression(char *key);
+typedef struct LLNode LLNode;
+struct LLNode{
+  void* data;
+  LLNode* next;
+};
 
-extern
-void insert_expression(char *key, int virtualRegister);
+typedef struct LL{
+  LLNode * head;
+  int length;
+} LL;
 
-extern
-void PrintExpressionTable();
+LL * create_LL();
+
+void free_LL();
+
+int push(LL * list, void* data);
+
+typedef struct HashtableItem{
+  char * key;
+  int data;
+} HashtableItem;
+
+HashtableItem * create_HashtableItem(char * key, int data);
+
+typedef struct Hashtable{
+  LL ** table;
+  int size;
+} Hashtable;
+
+Hashtable * create_Hashtable(int size);
+
+void free_Hashtable(Hashtable * target);
+
+int hash(char * key);
+
+int insert_expression(char * key, int data);
+
+int remove_key(char * target_key);
+
+int lookup_expression(char * target_key);
+
+void print_Expression_Hashtable();
 
 #endif

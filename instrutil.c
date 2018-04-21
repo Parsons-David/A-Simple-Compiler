@@ -113,7 +113,7 @@ emit(int label_index,
     InitExpressionTable();
     char buffer[1000];
     char * current_key = NULL;
-    SubExpression * cse = NULL;
+    int reg = -1;
     switch (opcode) { /* ---------------------- CSE OPTIMIZED ------------------------------- */
 
     case NOP:
@@ -124,83 +124,96 @@ emit(int label_index,
     case ADD:
       sprintf(buffer, "add r%d, r%d", field1, field2);
       current_key = strdup(buffer);
-      cse = lookup_expression(current_key);
-      printf("LOOKING FOR %s\n", current_key);
-      PrintExpressionTable();
-      if (cse == NULL) {
+      reg = lookup_expression(current_key);
+      // printf("\n%s -> %d\n", current_key, reg);
+      // printf("LOOKING FOR %s\n", current_key);
+      print_Expression_Hashtable();
+      if (reg == -1) {
         insert_expression(current_key, field3);
         fprintf(outfile, "%s\t add r%d, r%d \t=> r%d \n", label, field1, field2, field3);
         return field3;
       } else {
-        return cse->virtualRegister;
+        return reg;
       }
       break;
 
     case SUB:
       sprintf(buffer, "sub r%d, r%d", field1, field2);
       current_key = strdup(buffer);
-      cse = lookup_expression(current_key);
-      printf("LOOKING FOR %s\n", current_key);
-      PrintExpressionTable();
-      if (cse == NULL) {
+      reg = lookup_expression(current_key);
+      // printf("\n%s -> %d\n", current_key, reg);
+      // printf("LOOKING FOR %s\n", current_key);
+      print_Expression_Hashtable();
+      if (reg == -1) {
         insert_expression(current_key, field3);
         fprintf(outfile, "%s\t sub r%d, r%d \t=> r%d \n", label, field1, field2, field3);
         return field3;
       } else {
-        return cse->virtualRegister;
+        return reg;
       }
       break;
 
     case MULT:
       sprintf(buffer, "mult r%d, r%d", field1, field2);
       current_key = strdup(buffer);
-      cse = lookup_expression(current_key);
-      printf("LOOKING FOR %s\n", current_key);
-      PrintExpressionTable();
-      if (cse == NULL) {
+      reg = lookup_expression(current_key);
+      // printf("\n%s -> %d\n", current_key, reg);
+      // printf("LOOKING FOR %s\n", current_key);
+      print_Expression_Hashtable();
+      if (reg == -1) {
         insert_expression(current_key, field3);
         fprintf(outfile, "%s\t mult r%d, r%d \t=> r%d \n", label, field1, field2, field3);
         return field3;
       } else {
-        return cse->virtualRegister;
+        return reg;
       }
       break;
 
     case LOADI:
       sprintf(buffer, "loadI %d", field1);
       current_key = strdup(buffer);
-      cse = lookup_expression(current_key);
-      printf("LOOKING FOR %s\n", current_key);
-      PrintExpressionTable();
-      if (cse == NULL) {
+      reg = lookup_expression(current_key);
+      // printf("\n%s -> %d\n", current_key, reg);
+      // printf("LOOKING FOR %s\n", current_key);
+      print_Expression_Hashtable();
+      if (reg == -1) {
         insert_expression(current_key, field2);
         /* Example: loadI 1024 => r1 */
         fprintf(outfile, "%s\t loadI %d \t=> r%d \n", label, field1, field2);
         return field2;
       } else {
-        return cse->virtualRegister;
+        return reg;
       }
       break;
 
     case LOADAI:
       sprintf(buffer, "loadAI r%d, %d", field1, field2);
       current_key = strdup(buffer);
-      cse = lookup_expression(current_key);
-      printf("LOOKING FOR %s\n", current_key);
-      PrintExpressionTable();
-      if (cse == NULL) {
+      reg = lookup_expression(current_key);
+      // printf("LOOKING FOR %s\n", current_key);
+      // printf("\n%s -> %d\n", current_key, reg);
+      print_Expression_Hashtable();
+      if (reg == -1) {
         insert_expression(current_key, field3);
         /* Example: loadAI r1, 16 => r3 */
         fprintf(outfile, "%s\t loadAI r%d, %d \t=> r%d \n", label, field1, field2, field3);
         return field3;
       } else {
-        return cse->virtualRegister;
+        return reg;
       }
       break;
 
     case STOREAI:
+      sprintf(buffer, "loadAI r%d, %d", field2, field3);
+      current_key = strdup(buffer);
+      reg = lookup_expression(current_key);
+      // printf("LOOKING FOR %s\n", current_key);
+      // printf("\n%s -> %d\n", current_key, reg);
+      if(reg != -1){
+        remove_key(current_key);
+      }
+      print_Expression_Hashtable();
       /* Example: storeAI r1 => r2, 16 */
-      flushExpressionTable();
       fprintf(outfile, "%s\t storeAI r%d \t=> r%d, %d \n", label, field1, field2, field3);
       break;
     case OUTPUTAI:
