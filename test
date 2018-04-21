@@ -74,12 +74,12 @@ def main():
             error_report = match_stats(base_stats, my_stats)
 
         # If no report is sent, there's no mismatch, we passed!
-        if error_report:
+        if not error_report["Passed"]:
             print(ERASE_LINE, end = '')
             print("\r****** %s FAILED ******" % short_file)
-            print_report(error_report)
         else:
             print("\r****** %s PASSED ******" % short_file)
+        print_report(error_report["Stats"])
 
     print("\n****** TEST CASES COMPLETE ******\n")
 
@@ -200,17 +200,24 @@ def get_first_error_and_line(output_file):
         # print(line)
 
 def match_stats(base, my):
-    report = []
+    report = {
+        "Passed" : True,
+        "Stats" : []
+    }
     passed = True
     m_ins, m_ops, m_cyc = parse_stats(my)
     b_ins, b_ops, b_cyc = parse_stats(base)
     if not m_ins < b_ins:
-        passed = False
-        report.append("Expected Less Then: %d | Got: %d | Ins" % (b_ins, m_ins))
-        report.append("Expected Less Then: %d | Got: %d | Ops" % (b_ops, m_ops))
-        report.append("Expected Less Then: %d | Got: %d | Cyc" % (b_cyc, m_cyc))
+        report["Passed"] = False
+        report["Stats"].append("Expected Less Then: %d | Got: %d | Ins" % (b_ins, m_ins))
+        report["Stats"].append("Expected Less Then: %d | Got: %d | Ops" % (b_ops, m_ops))
+        report["Stats"].append("Expected Less Then: %d | Got: %d | Cyc" % (b_cyc, m_cyc))
+    else:
+        report["Stats"].append("\tSaved %d Ins" % (b_ins - m_ins))
+        report["Stats"].append("\tSaved %d Ops" % (b_ops - m_ops))
+        report["Stats"].append("\tSaved %d Cyc" % (b_cyc - m_cyc))
 
-    return None if passed else report
+    return report
 
 
 def parse_stats(stats):
