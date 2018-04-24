@@ -1,0 +1,13 @@
+program main;
+var a: integer;
+    b: integer;
+    c: integer;
+    d: integer;
+begin
+  a := 1;
+  b := 1;
+  c := a;
+  d := a;
+  d := b;
+  c := a
+end.

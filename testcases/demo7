@@ -1,0 +1,14 @@
+program main;
+var a: integer;
+    b: integer;
+    c: integer;
+    d: integer;
+begin
+  a := 1;
+  b := 1;
+  c := a + 1;
+  d := b + 1;
+  d := a + a;
+  c := b + b;
+  d := c + c + a + a
+end.
