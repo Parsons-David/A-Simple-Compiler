@@ -5,4 +5,4 @@ parse.tab.c
 parse.tab.h
 codegen
 iloc.out
-proj2.tar
+*.tar
