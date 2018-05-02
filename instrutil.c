@@ -222,6 +222,7 @@ emit(int label_index,
       if(reg != -1){
         remove_key(current_key);
       }
+      insert_expression(current_key, field1);
       print_Expression_Hashtable();
       /* Example: storeAI r1 => r2, 16 */
       fprintf(outfile, "%s\t storeAI r%d \t=> r%d, %d \n", label, field1, field2, field3);
