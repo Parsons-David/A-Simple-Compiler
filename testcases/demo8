@@ -1,0 +1,15 @@
+program main;
+var a: integer;
+    b: integer;
+    c: integer;
+    d: integer;
+begin
+  a := 1;
+  b := 2;
+  d := a + b;
+  c := b + a;
+  d := a * b;
+  c := b * a;
+  print(a);
+  print(5)
+end.

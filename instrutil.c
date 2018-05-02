@@ -130,6 +130,11 @@ emit(int label_index,
       print_Expression_Hashtable();
       if (reg == -1) {
         insert_expression(current_key, field3);
+
+        sprintf(buffer, "add r%d, r%d", field2, field1);
+        current_key = strdup(buffer);
+        insert_expression(current_key, field3);
+
         fprintf(outfile, "%s\t add r%d, r%d \t=> r%d \n", label, field1, field2, field3);
         return field3;
       } else {
@@ -162,6 +167,11 @@ emit(int label_index,
       print_Expression_Hashtable();
       if (reg == -1) {
         insert_expression(current_key, field3);
+
+        sprintf(buffer, "mult r%d, r%d", field2, field1);
+        current_key = strdup(buffer);
+        insert_expression(current_key, field3);
+
         fprintf(outfile, "%s\t mult r%d, r%d \t=> r%d \n", label, field1, field2, field3);
         return field3;
       } else {
