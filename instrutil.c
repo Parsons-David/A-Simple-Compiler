@@ -127,7 +127,7 @@ emit(int label_index,
       reg = lookup_expression(current_key);
       // printf("\n%s -> %d\n", current_key, reg);
       // printf("LOOKING FOR %s\n", current_key);
-      print_Expression_Hashtable();
+      // print_Expression_Hashtable();
       if (reg == -1) {
         insert_expression(current_key, field3);
 
@@ -148,7 +148,7 @@ emit(int label_index,
       reg = lookup_expression(current_key);
       // printf("\n%s -> %d\n", current_key, reg);
       // printf("LOOKING FOR %s\n", current_key);
-      print_Expression_Hashtable();
+      // print_Expression_Hashtable();
       if (reg == -1) {
         insert_expression(current_key, field3);
         fprintf(outfile, "%s\t sub r%d, r%d \t=> r%d \n", label, field1, field2, field3);
@@ -164,7 +164,7 @@ emit(int label_index,
       reg = lookup_expression(current_key);
       // printf("\n%s -> %d\n", current_key, reg);
       // printf("LOOKING FOR %s\n", current_key);
-      print_Expression_Hashtable();
+      // print_Expression_Hashtable();
       if (reg == -1) {
         insert_expression(current_key, field3);
 
@@ -185,7 +185,7 @@ emit(int label_index,
       reg = lookup_expression(current_key);
       // printf("\n%s -> %d\n", current_key, reg);
       // printf("LOOKING FOR %s\n", current_key);
-      print_Expression_Hashtable();
+      // print_Expression_Hashtable();
       if (reg == -1) {
         insert_expression(current_key, field2);
         /* Example: loadI 1024 => r1 */
@@ -202,7 +202,7 @@ emit(int label_index,
       reg = lookup_expression(current_key);
       // printf("LOOKING FOR %s\n", current_key);
       // printf("\n%s -> %d\n", current_key, reg);
-      print_Expression_Hashtable();
+      // print_Expression_Hashtable();
       if (reg == -1) {
         insert_expression(current_key, field3);
         /* Example: loadAI r1, 16 => r3 */
@@ -223,7 +223,7 @@ emit(int label_index,
         remove_key(current_key);
       }
       insert_expression(current_key, field1);
-      print_Expression_Hashtable();
+      // print_Expression_Hashtable();
       /* Example: storeAI r1 => r2, 16 */
       fprintf(outfile, "%s\t storeAI r%d \t=> r%d, %d \n", label, field1, field2, field3);
       break;
