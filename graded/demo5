@@ -1,0 +1,20 @@
+program main;
+var 
+  i: integer;
+  b: array[10] of integer;
+  c: array[10] of integer;
+begin
+  b[0] := 1;
+  c[0] := 1;
+  print(b[0]);
+  print(c[0]);
+  i := 1;
+  while i <= 9 do
+  begin  
+    b[i] := b[i-1] + b[i-1];
+    c[i] := c[i-1] + 1;
+    print(b[i]);
+    print(c[i]);
+    i := i + 1
+  end
+end.

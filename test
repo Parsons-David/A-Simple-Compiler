@@ -18,6 +18,10 @@ TEST_CASE_PATH = "testcases/"
 if not os.path.exists(TEST_CASE_PATH):
     print("\'%s\' not found.\nPlease add it to the same directory as the test script." % (TEST_CASE_PATH))
     exit()
+GRADED_PATH = "graded/"
+if not os.path.exists(GRADED_PATH):
+    print("\'%s\' not found.\nPlease add it to the same directory as the test script." % (GRADED_PATH))
+    exit()
 ERRORS_PATH = "testerrors/"
 CAN_TEST_ERRORS = os.path.exists(ERRORS_PATH)
 
@@ -36,6 +40,7 @@ def main():
     # Gather all the testcase files from the target directory
     all_files = gather_file_names(TEST_CASE_PATH)
     error_files = gather_file_names(ERRORS_PATH)
+    graded_files = gather_file_names(GRADED_PATH)
     # print(all_files)
     # Generate Dictionary of Results
     # JSON like dict of test file information
@@ -120,6 +125,43 @@ def main():
             else:
                 print("\r****** %s PASSED ******" % short_file)
         print("\n****** ERROR CASES COMPLETE ******\n")
+
+    gradedcases = {}
+    # Build File_args
+    for test_file in graded_files:
+        # Build base_output
+        gradedcases[test_file] = {}
+        # Run each file once to get expected output
+        output_file = run_sol_codegen(test_file)
+        gradedcases[test_file] = run_iloc_sim(output_file)
+        os.remove(output_file)
+        # print(json.dumps(gradedcases, indent=4))
+
+    for case in gradedcases:
+        short_file = os.path.basename(case)
+
+        # Get base sol-codegen output
+        experimental = gradedcases[case]
+        base_stats = experimental['stats']
+        base_output = experimental['output']
+
+        print("\r****** Testing %s ******" % (short_file), end='')
+        my_output_file = run_my_codegen(case)
+        my_output = run_iloc_sim(my_output_file)
+        os.remove(my_output_file)
+
+        my_stats = my_output['stats']
+        my_output = my_output['output']
+
+        error_report = get_match_output_report(base_output, my_output)
+
+        # If no report is sent, there's no mismatch, we passed!
+        if error_report:
+            print(ERASE_LINE, end = '')
+            print("\r****** %s FAILED ******" % short_file)
+            print_report(error_report)
+        else:
+            print("\r****** %s PASSED ******" % short_file)
     print(os.popen(CLEAN).read())
 
 

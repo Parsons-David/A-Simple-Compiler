@@ -1,0 +1,12 @@
+program main;
+var a, b, c: boolean;
+begin
+  a := true;
+  b := false;
+  print(a);
+  print(b);
+  c := a or b;
+  print(c);
+  c := a and b;
+  print(c)
+end.

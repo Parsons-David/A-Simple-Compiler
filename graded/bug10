@@ -1,0 +1,11 @@
+program main;
+var a: integer;
+    b: boolean;
+begin
+  a := 1;
+  b := true;
+  if a < b and b then
+    a := a + 1
+  else
+    a := a + 2
+end.

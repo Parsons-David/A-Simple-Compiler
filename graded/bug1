@@ -1,0 +1,6 @@
+program main;
+var a: integer;
+    b: boolean;
+begin
+  b := a + 1
+end.

@@ -1,0 +1,23 @@
+program main;
+var sum, i, x: integer;
+begin
+  x := 0;
+  sum := 0;
+  i := 0;
+  while i <= 99 do
+  begin
+    if i < 50 then
+    begin
+      while x <= i do
+      begin
+        sum := sum + x;
+        x := x + 1
+      end
+    end
+    else
+      sum := sum;
+  i := i + 1
+  end;
+  x := 0;
+  print(sum)
+end.

@@ -1,0 +1,5 @@
+program main;
+var i: boolean;
+begin
+  i := true and false and 1
+end.

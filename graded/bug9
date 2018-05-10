@@ -1,0 +1,12 @@
+program main;
+var a: boolean;
+    b: boolean;
+    c: integer;
+begin
+  b := true;
+  c := 1;
+  if b == c then
+    a := true
+  else
+    a := false
+end.

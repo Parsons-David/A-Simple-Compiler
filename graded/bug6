@@ -1,0 +1,5 @@
+program main;
+var i: integer;
+begin
+  i := i + true
+end.

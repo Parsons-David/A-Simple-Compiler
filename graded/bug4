@@ -1,0 +1,5 @@
+program main;
+var b: integer;
+begin
+  b[0] := 1
+end.

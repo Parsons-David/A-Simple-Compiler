@@ -1,0 +1,20 @@
+program main;
+var i: integer; 
+    x: array [100] of integer;
+    sum: integer;
+begin
+  i := 0;
+  while i <= 99 do
+  begin
+    x[i] := 2;
+    i := i + 1
+  end;
+  sum := 0;
+  i := 0;
+  while i <= 99 do
+  begin
+    sum := sum + x[i];
+    i := i + 1
+  end;
+  print(sum)
+end.
